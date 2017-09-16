@@ -16,6 +16,7 @@ package com.example.android.shushme;
 * limitations under the License.
 */
 
+import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements
     private boolean mIsEnabled;
     private GoogleApiClient mClient;
     private Geofencing mGeofencing;
+    private CheckBox cb;
 
     /**
      * Called when the activity is starting
@@ -247,9 +250,26 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         //TODO (3) Initialize ringer permissions checkbox
+        cb = (CheckBox) findViewById(R.id.ringer_permissions_checkbox);
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if(android.os.Build.VERSION.SDK_INT >= 24 && !nm.isNotificationPolicyAccessGranted()){
+            cb.setChecked(false);
+        }else {
+            cb.setChecked(false);
+            cb.setEnabled(false);
+        }
     }
 
     // TODO (2) Implement onRingerPermissionsClicked to launch ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS
+
+    public void onRingerPermissionsClicked(View view){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            Intent intent =  new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+            startActivity(intent);
+        }else{
+            Toast.makeText(this,"API version not supported",Toast.LENGTH_LONG).show();
+        }
+    }
 
     public void onLocationPermissionClicked(View view) {
         ActivityCompat.requestPermissions(MainActivity.this,
